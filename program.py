@@ -1,7 +1,9 @@
 import cv2 as cv
 import numpy as np
+import pytesseract
 
-img_orig = cv.imread("Tyre1.jpeg")
+img_orig = cv.imread("Tyre2.jpeg")
+imgNu = 2
 # cv.imshow("Input", img_orig)
 
 img = cv.cvtColor(img_orig, cv.COLOR_BGR2GRAY)
@@ -27,7 +29,9 @@ for i in cir[0,:]:
         ciry = i[1]
 
 # cv.imshow("Output", img_cir)
-cv.imshow("Largest", cv.circle(img_orig, (cirx, ciry), maxr, (0,0,255), 2))
+img_lar = cv.circle(img_orig, (cirx, ciry), maxr, (0,0,255), 2)
+# cv.imshow("Largest", img_lar)
+cv.imwrite(str(imgNu)+"DetectedImage.jpg", img_lar)
 
 print(cirx)
 print(ciry)
@@ -55,14 +59,19 @@ img_crop = img_orig[y1:ciry+maxr, x1:cirx+maxr]
 
 cv.imwrite("CroppedImage.jpg", img_crop)
 
-polar_image = cv.warpPolar(img_orig, dsize=(500,1570) ,center=(cirx, ciry),maxRadius=maxr, flags=cv.WARP_POLAR_LINEAR)
+polar_image = cv.warpPolar(img_orig, dsize=(500,1700) ,center=(cirx, ciry),maxRadius=maxr, flags=cv.WARP_POLAR_LINEAR)
 polar_image = cv.rotate(polar_image, cv.ROTATE_90_COUNTERCLOCKWISE)
-cv.imshow("Straightened", polar_image)
+# cv.imshow("Straightened", polar_image)
+cv.imwrite(str(imgNu)+"StraightnedImage.jpg", polar_image)
 
 img2 = cv.cvtColor(polar_image, cv.COLOR_BGR2GRAY)
-img2 = cv.GaussianBlur(img2, (9,9),0)
+img2 = cv.GaussianBlur(img2, (3,3),0)
 img2 = cv.Canny(img2,90,90)
-cv.imshow("Output", img2)
+# cv.imshow("Output", img2)
+cv.imwrite(str(imgNu)+"RecognitionImage.jpg", img2)
 
-cv.waitKey()
+from pytesseract import Output
+d = pytesseract.image_to_data(img2, output_type=Output.DICT)
+print(d.keys())
+
 cv.destroyAllWindows() 
